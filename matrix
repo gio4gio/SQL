@@ -1,0 +1,17 @@
+select 
+  array_agg(m order by j) matrix
+from
+  (select nr, j, array_agg(matrix[i][j]) m
+   from
+     (select 
+        nr, i, generate_subscripts(matrix, 2) j, matrix
+      from  
+        (select 
+           row_number() over () nr,
+           generate_subscripts(matrix, 1) i, matrix 
+         from matrices
+         order by nr, i) i
+       order by nr, j, i) j
+   group by nr, j
+   order by nr, j) m
+group by nr
